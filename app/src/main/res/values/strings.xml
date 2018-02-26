@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Facebook</string>
+    <string name="Login">LOG IN</string>
+    <string name="Create">CREATE NEW FACEBOOK ACCOUNT</string>
+    <string name="Show">SHOW</string>
+    <string name="Hide">HIDE</string>
+    <string name="Forgot">Forgot Password?</string>
+
+    <string name="HintID">Email or Phone</string>
+    <string name="HintPASS">Password</string>
+</resources>
