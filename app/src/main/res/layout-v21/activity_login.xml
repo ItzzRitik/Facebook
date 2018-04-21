@@ -24,7 +24,7 @@
         android:paddingTop="@dimen/activity_vertical_margin"
         android:name=".login_activity"
         tools:context=".LoginActivity"
-        android:background="#3B5998">
+        android:background="#e73b5998">
 
          <ImageView
               android:id="@+id/Iv1"
@@ -84,11 +84,12 @@
                      android:text="@string/Show"
                      android:textStyle="bold"
                      android:textColor="#ffffff"
-                     android:layout_alignParentRight="true"
+                     android:layout_alignParentEnd="true"
                      android:clickable="true"
                      android:paddingTop="17dp"
-                     android:textSize="12dp"
-                     android:paddingRight="10dp"/>
+                     android:textSize="12sp"
+                     android:paddingEnd="10dp"
+                     android:focusable="true" />
           </RelativeLayout>
           <Button
               android:layout_width="fill_parent"
@@ -111,7 +112,8 @@
         android:id="@+id/forgot"
         android:layout_below="@+id/linearLayout1"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="20dp"/>
+        android:layout_marginTop="20dp"
+        android:focusable="true" />
 
     <ProgressBar
         style="?android:attr/progressBarStyleSmall"
@@ -119,8 +121,8 @@
         android:layout_height="wrap_content"
         android:id="@+id/progressBar"
         android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:paddingTop="250dp"/>
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="100dp"/>
 
     <Button
         android:layout_width="fill_parent"

