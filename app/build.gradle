@@ -31,8 +31,7 @@ android {
 }
 
 dependencies {
-    implementation fileTree(dir: 'libss', include: ['*.jar'])
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
     testImplementation 'junit:junit:4.12'
     implementation 'com.android.support:appcompat-v7:27.1.1'
-    implementation 'com.github.yesidlazaro:GmailBackground:1.2.0'
 }

