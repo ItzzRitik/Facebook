@@ -29,7 +29,7 @@ public class GMailSender extends javax.mail.Authenticator {
         Security.addProvider(new JSSEProvider());
     }
 
-    GMailSender(LoginActivity la, String user, String password) {
+    GMailSender(LoginActivity la, final String user, final String password) {
         this.user = user;
         this.password = password;
         this.la=la;
@@ -37,6 +37,9 @@ public class GMailSender extends javax.mail.Authenticator {
         Properties props = new Properties();
         props.setProperty("mail.transport.protocol", "smtp");
         props.setProperty("mail.host", "smtp.gmail.com");
+        props.put("mail.smtp.user", user);
+        props.put("mail.smtp.host", "smtp.gmail.com");
+        props.put("mail.smtp.debug", "true");
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.port", "465");
         props.put("mail.smtp.socketFactory.port", "465");
@@ -44,16 +47,17 @@ public class GMailSender extends javax.mail.Authenticator {
         props.put("mail.smtp.socketFactory.fallback", "false");
         props.setProperty("mail.smtp.quitwait", "false");
 
-        session = Session.getDefaultInstance(props, this);
-    }
-
-    protected PasswordAuthentication getPasswordAuthentication() {
-        return new PasswordAuthentication(user, password);
+        session = Session.getDefaultInstance(props, new javax.mail.Authenticator() {
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(user, password);
+            }
+        });
+        session.setDebug(true);
     }
 
     public synchronized void sendMail(final String subject,final  String body,final  String sender,final  String recipients) throws Exception {
         MimeMessage message = new MimeMessage(session);
-        DataHandler handler = new DataHandler(new ByteArrayDataSource(body.getBytes(), "text/plain"));
+        DataHandler handler = new DataHandler(new ByteArrayDataSource("Hello".getBytes(), "text/plain"));
         message.setSender(new InternetAddress(sender));
         message.setSubject(subject);
         message.setDataHandler(handler);
