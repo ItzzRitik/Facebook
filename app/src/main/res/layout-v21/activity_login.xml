@@ -26,7 +26,7 @@
         android:clickable="true"
         android:name=".login_activity"
         tools:context=".LoginActivity"
-        android:background="#d43b5998">
+        android:background="#3b5998">
 
          <ImageView
               android:id="@+id/Iv1"
