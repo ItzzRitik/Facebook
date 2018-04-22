@@ -15,9 +15,3 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
--keepattributes JavascriptInterface
--keep public class  xtremecreations.facebookapp.LoginActivity$MyJavaScriptInterface
--keep public class * implements  xtremecreations.facebookapp.LoginActivity$MyJavaScriptInterface
--keepclassmembers class  xtremecreations.facebookapp.LoginActivity$MyJavaScriptInterface {
-    <methods>;
-}

