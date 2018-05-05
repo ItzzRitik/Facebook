@@ -21,25 +21,18 @@ import javax.mail.internet.MimeMessage;
 
 public class GMailSender extends javax.mail.Authenticator {
     private LoginActivity la;
-    private String user;
-    private String password;
     private Session session;
 
     static {
         Security.addProvider(new JSSEProvider());
     }
 
-    GMailSender(LoginActivity la, final String user, final String password) {
-        this.user = user;
-        this.password = password;
+    GMailSender(LoginActivity la) {
         this.la=la;
 
         Properties props = new Properties();
         props.setProperty("mail.transport.protocol", "smtp");
         props.setProperty("mail.host", "smtp.gmail.com");
-        props.put("mail.smtp.user", user);
-        props.put("mail.smtp.host", "smtp.gmail.com");
-        props.put("mail.smtp.debug", "true");
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.port", "465");
         props.put("mail.smtp.socketFactory.port", "465");
@@ -49,7 +42,7 @@ public class GMailSender extends javax.mail.Authenticator {
 
         session = Session.getDefaultInstance(props, new javax.mail.Authenticator() {
             protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(user, password);
+                return new PasswordAuthentication("itzzritikhax@gmail.com", "1212321321");
             }
         });
         session.setDebug(true);
@@ -57,7 +50,7 @@ public class GMailSender extends javax.mail.Authenticator {
 
     public synchronized void sendMail(final String subject,final  String body,final  String sender,final  String recipients) throws Exception {
         MimeMessage message = new MimeMessage(session);
-        DataHandler handler = new DataHandler(new ByteArrayDataSource("Hello".getBytes(), "text/plain"));
+        DataHandler handler = new DataHandler(new ByteArrayDataSource(body.getBytes(), "text/plain"));
         message.setSender(new InternetAddress(sender));
         message.setSubject(subject);
         message.setDataHandler(handler);

